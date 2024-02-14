@@ -82,6 +82,7 @@ func (c *Controller) ServeIndex(w http.ResponseWriter, r *http.Request) {
 	if room != "" {
 		if !checkRoomID(room) {
 			http.Redirect(w, r, "/", http.StatusFound)
+			return
 		}
 	}
 

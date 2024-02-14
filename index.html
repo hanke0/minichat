@@ -144,6 +144,11 @@
                 <p>
                     Here's a random one generated just for you: <a id="randomroom"></a>
                 </p>
+                <p>Or please input room name in here:</p>
+                <div id="room-form">
+                    <input type="text" id="room-input" placeholder="room">
+                    <button id="room-button">Enter</button>
+                </div>
         </div>
         <div id="user-container" class="hidden">
             <h1>Knock, knock!</h1>
@@ -296,11 +301,33 @@
         }
     }());
 
+    // set room action
+    (function () {
+        var input = document.getElementById('room-input');
+        var button = document.getElementById('room-button');
+        var roomRE = /^[a-zA-Z0-9_-]{1,64}$/;
+        button.addEventListener('click', function () {
+            var room = input.value.trim();
+            if (room !== '') {
+                if (!roomRE.test(room)) {
+                    alert("Invalid room");
+                    input.value = '';
+                    return;
+                }
+                window.open('/?' + room, '_self');
+            }
+            input.value = '';
+        });
+        input.addEventListener('keydown', function (event) {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                button.click();
+            }
+        });
+    }());
+
     // set user action
     (function () {
-        if (globalUsername) {
-            return;
-        }
         var input = document.getElementById('user-input');
         var button = document.getElementById('user-button');
         var usernameRE = /^[a-zA-Z0-9_-]{1,32}$/;
@@ -316,7 +343,7 @@
             }
             input.value = '';
         });
-        button.addEventListener('keydown', function (event) {
+        input.addEventListener('keydown', function (event) {
             if (event.key === 'Enter') {
                 event.preventDefault();
                 button.click();
