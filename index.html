@@ -3,14 +3,30 @@
 
 <head>
     <title>MiniChat</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <style>
+        html,
         body {
             font-family: Arial, sans-serif;
+            max-width: 100%;
+            min-height: 100%;
+            height: 100%;
+            max-height: 100%;
+            width: 100%;
+            margin: 0;
         }
 
         #container {
-            width: 500px;
-            margin: 32px auto;
+            width: 600px;
+            margin: 0 auto;
+            height: 100%;
+            min-height: 100%;
+        }
+
+        @media (max-width: 600px) {
+            #container {
+                width: 100%;
+            }
         }
 
         #chat-box div {
@@ -21,8 +37,8 @@
             background-color: #f0f0f0;
         }
 
-        .chat-container {
-            height: 600px;
+        #chat-container {
+            height: 80%;
             border: 1px solid #ccc;
             border-radius: 5px;
             padding: 0 10px 10px 10px;
@@ -69,7 +85,7 @@
         }
 
         .hidden {
-            display: none;
+            display: none !important;
         }
 
         .text-message {
@@ -82,12 +98,21 @@
 
         #user-container {
             margin: 1rem auto;
+            text-align: center;
+            padding: 0 10px 10px 10px;
+        }
+
+        #room-container {
+            margin: 1rem auto;
+            text-align: center;
+            padding: 0 10px 10px 10px;
         }
     </style>
 </head>
 
 <body>
     <div id="container">
+        <div style="height: 2rem"></div>
         <div id="chat-container" class="chat-container hidden">
             <div>
                 <p id="tips"></p>
@@ -139,9 +164,12 @@
 
     function getRandomString(length) {
         var result = '';
-        var characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+        var characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
         var charactersLength = characters.length;
         for (var i = 0; i < length; i++) {
+            if (i % 4 == 0 && i != 0) {
+                result += '-';
+            }
             result += characters.charAt(Math.floor(Math.random() * charactersLength));
         }
         return result;
@@ -245,6 +273,15 @@
                 showUserPage();
             }
         } else {
+            showRoomPage();
+        }
+        if (window.location.search === "?debugchatpage=1") {
+            showChatPage();
+        }
+        if (window.location.search === "?debuguserpage=1") {
+            showUserPage();
+        }
+        if (window.location.search === "?debugroompage=1") {
             showRoomPage();
         }
     }());
