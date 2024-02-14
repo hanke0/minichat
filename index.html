@@ -185,8 +185,8 @@
         a.innerText = "/?" + s;
     }());
 
-    function joinRoom() {
-        console.log('join room user=', globalUsername, ", room=" + globalRoom)
+    function receiveMessages() {
+        console.log('receive messages user=', globalUsername, ", room=" + globalRoom)
         if (globalEventSource != null) {
             globalEventSource.close();
             globalEventSource = null;
@@ -226,16 +226,24 @@
         var req = fetch("/username?" + username);
         req.then(function (response) {
             if (response.status !== 200) {
-                throw new Error('http status ' + response.status);
+                response.text().then(function (text) {
+                    alert('Failed to get username: ' + response.status + ' ' + text);
+                }).catch(function (error) {
+                    alert('Failed to get username: ' + response.status + ' ' + error);
+                });
+                return null;
             }
             return response.text();
         }).then(function (data) {
             if (!data) {
+                if (data === null) {
+                    return;
+                }
                 throw new Error('get empty username');
             }
             globalUsername = data;
             console.log('username', data, "global-username=", globalUsername);
-            joinRoom();
+            receiveMessages();
             tips.innerText = username + " in the room /" + window.location.search;
             return req
         }).catch(function (error) {
@@ -270,7 +278,7 @@
         globalRoom = room;
         if (room) {
             if (globalUsername) {
-                joinRoom();
+                receiveMessages();
             } else {
                 showUserPage();
             }

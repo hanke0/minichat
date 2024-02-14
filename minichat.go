@@ -100,8 +100,8 @@ func (c *Controller) ServeUsername(w http.ResponseWriter, r *http.Request) {
 	username := r.URL.RawQuery
 	id, err := encodeUsername(username)
 	if err != nil {
-		log.Printf("%s %s 500 %s", r.Method, r.URL.String(), err)
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		log.Printf("%s %s 400 %s", r.Method, r.URL.String(), err)
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 	w.Header().Set("Content-Type", "text/plain")
