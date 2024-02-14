@@ -206,7 +206,7 @@
             globalUsername = data;
             console.log('username', data, "global-username=", globalUsername);
             joinRoom();
-            tips.innerHTML = "Login as <b>" + username + "</b> at room <b>/" + window.location.search + "</b>";
+            tips.innerText = username + " in the room /" + window.location.search;
             return req
         }).catch(function (error) {
             alert('Failed to get username' + error);
@@ -281,7 +281,13 @@
         var chatBox = document.getElementById('chat-box');
         if (user !== '' && message !== '') {
             var messageElement = document.createElement('div');
-            messageElement.innerHTML = '<strong>' + user + ':</strong>' + '<pre class="text-message">' + message + "</pre>";
+            var username = document.createElement('strong');
+            username.innerText = user + ': ';
+            messageElement.appendChild(username);
+            var text = document.createElement('pre');
+            text.classList.add('text-message');
+            text.innerText = message;
+            messageElement.appendChild(text);
             chatBox.appendChild(messageElement);
             chatBox.scrollTop = chatBox.scrollHeight;
         }
