@@ -547,7 +547,7 @@ func main() {
 	version := flag.Bool("version", false, "show version")
 	flag.Parse()
 	if *version {
-		fmt.Println("minichat v0.1.2")
+		fmt.Println("minichat v0.1.3")
 		return
 	}
 	if v := os.Getenv("ADDR"); v != "" && *addr == "" {
