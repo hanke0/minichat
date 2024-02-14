@@ -4,6 +4,7 @@ import (
 	_ "embed"
 	"flag"
 	"log"
+	"os"
 
 	"context"
 	"crypto/aes"
@@ -542,7 +543,19 @@ func decrypt(ciphertext []byte, key []byte) ([]byte, error) {
 }
 
 func main() {
-	addr := flag.String("addr", ":8080", "http service address")
+	addr := flag.String("addr", "", "http service address")
+	version := flag.Bool("version", false, "show version")
+	flag.Parse()
+	if *version {
+		fmt.Println("minichat v0.1.0")
+		return
+	}
+	if v := os.Getenv("ADDR"); v != "" && *addr == "" {
+		*addr = v
+	}
+	if *addr == "" {
+		*addr = ":8080"
+	}
 	c := NewController()
 	http.HandleFunc("/", c.ServeIndex)
 	http.HandleFunc("/username", c.ServeUsername)
