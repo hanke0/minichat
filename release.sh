@@ -8,12 +8,12 @@ release_platform() {
         if [ "$1" = "windows" ]; then
             name="$name.exe"
         fi
-        GOOS=$1 GOARCH=$2 go build -o $name ./cmd
+        GOOS=$1 GOARCH=$2 go build -o "$name" .
         shift 2
     done
 }
 
-rm -r ./build
+rm -rf ./build
 mkdir -p ./build
 
 release_platform \
