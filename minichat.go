@@ -5,6 +5,7 @@ import (
 	"flag"
 	"log"
 	"os"
+	"strings"
 
 	"context"
 	"crypto/aes"
@@ -286,6 +287,7 @@ func (room *Room) ServeReceiveMessage(w http.ResponseWriter, r *http.Request) {
 	}
 
 	log.Printf("enter room: %s enter %s", username, room.name)
+	c.PushMessage(NewTextMessage(userSystem, "Users in the room: "+room.users()))
 	room.Broadcast(NewTextMessage(userSystem, username+" enter the room"))
 	c.ServerReceiveMessage()
 	room.Broadcast(NewTextMessage(userSystem, username+" left the room"))
@@ -299,6 +301,18 @@ func (r *Room) closeConnection(uid string) {
 		r.connectionSize.Add(-1)
 		v.(*Connection).Close()
 	}
+}
+
+func (r *Room) users() string {
+	var users strings.Builder
+	r.connections.Range(func(key, value any) bool {
+		if users.Len() > 0 {
+			users.WriteByte(' ')
+		}
+		users.WriteString(key.(string))
+		return true
+	})
+	return users.String()
 }
 
 func (r *Room) Broadcast(msg Message) bool {
