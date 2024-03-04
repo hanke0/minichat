@@ -1,7 +1,7 @@
 
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
 import type { NextApiRequest, NextApiResponse } from "next";
-import { defaultCrypto } from "@/lib/secure";
+import { defaultCrypto } from "@/lib/server/secure";
 import { channels, getClientIP } from "@/pages/api/_lib";
 import { Message, SecretUser } from "@/lib/types";
 

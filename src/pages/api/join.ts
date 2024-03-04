@@ -1,6 +1,6 @@
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
 import type { NextApiRequest, NextApiResponse } from "next";
-import { defaultCrypto } from "@/lib/secure";
+import { defaultCrypto } from "@/lib/server/secure";
 import { channels, keepAliveInterval, getClientIP } from "@/pages/api/_lib";
 import { SecretUser } from "@/lib/types";
 
@@ -57,12 +57,12 @@ export default function handler(
     channels.removeUserFromChannel(channel, user)
     console.log(`User ${user} at ${ip} left channel ${channel}`)
     closed = true
-    channels.broadcast(channel, user, { type: 'user-left', name: user })
+    channels.broadcast(channel, user, { type: 'user-left', payload: user, id: crypto.randomUUID() })
   })
   res.status(200)
   res.flushHeaders()
-  u.sendMessage({ type: 'self-join', name: encUser, users: channels.usersInChannel(channel) })
-  channels.broadcast(channel, user, { type: 'user-join', name: user })
+  u.sendMessage({ type: 'self-join', payload: encUser, users: channels.usersInChannel(channel), id: crypto.randomUUID() })
+  channels.broadcast(channel, user, { type: 'user-join', payload: user, id: crypto.randomUUID() })
   const interval = setInterval(() => {
     if (closed || !u.keepAlive()) {
       clearInterval(interval)

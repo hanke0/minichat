@@ -1,9 +1,11 @@
 import { SelectHTMLAttributes } from 'react'
 import Message from '../components/message'
 import { useTheme } from 'next-themes'
+import { useJoin } from '../hooks/useJoin'
 
 export default function Home() {
   const { setTheme } = useTheme()
+  const { messages, error, loading, secret, reconnect } = useJoin({ user: 'user1', channel: 'room1' })
 
   const changeTheme = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setTheme(e.currentTarget.value)
@@ -19,6 +21,15 @@ export default function Home() {
           <p>6 users in the room</p>
         </header>
         <main className="flex-1 py-2 px-8 overflow-y-auto overflow-x-hidden">
+          {
+            messages.map((msg, i) => {
+              return (
+                <Message key={msg.id} user={msg.from} isMe={msg.from === 'me'}>
+                  {msg.payload}
+                </Message>
+              )
+            })
+          }
           <Message user='user1'>
             this is a every long message that is going to be sent by the user
             word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word
