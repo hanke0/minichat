@@ -13,6 +13,7 @@ export interface TextMessage extends BaseMessage {
 
 export interface SelfJoinMessage extends BaseMessage {
   type: 'self-join'
+  conflict: boolean
   users: number
 }
 

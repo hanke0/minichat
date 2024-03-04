@@ -1,27 +1,45 @@
 'use client'
 import { Message, TextMessage } from "@/lib/types"
-import { on } from "events"
 import { useEffect, useState } from "react"
 
+type eventSourceParam = {
+  channel: string
+  user: string
+  setMessages: (set: (pre: TextMessage[]) => TextMessage[]) => void
+  setError: (error: Error | null) => void
+  setLoading: (loading: boolean) => void
+  setSecret: (sendSecret: string) => void
+  setClosed: (opened: boolean) => void
+  setNumUsers: (users: number) => void
+}
+
 function makeEventSource(
-  channel: string, user: string,
-  setMessages: (set: (pre: TextMessage[]) => TextMessage[]) => void,
-  setError: (error: Error) => void,
-  setLoading: (loading: boolean) => void,
-  setSecret: (sendSecret: string) => void,
-  setOpened: (opened: boolean) => void,
-  setUsers: (users: number) => void,
+  {
+    channel,
+    user,
+    setMessages,
+    setError,
+    setLoading,
+    setSecret,
+    setClosed,
+    setNumUsers
+  }: eventSourceParam
 ) {
   const query = new URLSearchParams({ user, channel }).toString()
   const eventSource = new EventSource(`/api/join?${query}`)
 
+  eventSource.addEventListener('close', () => {
+    console.log('EventSource closed')
+    setClosed(true)
+  })
+
   eventSource.addEventListener('open', () => {
-    setOpened(true)
+    console.log('EventSource opened')
+    setClosed(false)
   })
 
   eventSource.addEventListener('error', (event) => {
-    console.error('EventSource failed:', event)
-    setOpened(false)
+    console.log('EventSource failed:', eventSource.readyState, event)
     if (event.type === 'error') {
       const e = event as ErrorEvent
       if (e.message) {
@@ -30,9 +48,12 @@ function makeEventSource(
       }
     }
     setError(new Error('Failed to connect to the server'))
+    eventSource.close()
   })
 
   eventSource.addEventListener('message', (event) => {
+    setError(null)
+    console.log('EventSource message:', event.data)
     try {
       const msg = JSON.parse(event.data) as Message
       if (msg.type === 'text' && msg.payload && msg.id) {
@@ -40,13 +61,18 @@ function makeEventSource(
         return
       }
       if (msg.type == 'self-join') {
+        if (msg.conflict) {
+          setError(new Error('User already in the channel'))
+          eventSource.close()
+          return
+        }
         if (!msg.payload) {
           setError(new Error('Failed to join the channel'))
           eventSource.close()
           return
         }
         setSecret(msg.payload)
-        setUsers(msg.users || 0)
+        setNumUsers(msg.users || 0)
         setLoading(false)
         return
       }
@@ -64,31 +90,44 @@ export function useJoin({ user, channel }: { user: string, channel: string }) {
   const [messages, setMessages] = useState<TextMessage[]>([])
   const [error, setError] = useState<Error | null>(null)
   const [loading, setLoading] = useState(true)
-  const [secret, setSecret] = useState<string>("")
-  const [opened, setOpened] = useState(false)
+  const [secret, setSecret] = useState("")
+  const [closed, setClosed] = useState(true)
   const [numUsers, setNumUsers] = useState<number>(0)
-  const [es, setES] = useState<EventSource | null>(null)
-  const [once, setOnce] = useState(false)
+  const [, setES] = useState<EventSource | null>(null)
 
   useEffect(() => {
-    setLoading(true)
     setError(null)
-    setOpened(false)
+    setLoading(true)
+    setSecret("")
+    setClosed(true)
+
     setES((pre) => {
       if (pre) {
-        pre.close()
+        if (pre.readyState !== EventSource.CLOSED) {
+          return pre
+        }
       }
       return makeEventSource(
-        user, channel, setMessages, setError, setLoading, setSecret, setOpened, setNumUsers)
+        {
+          user, channel, setMessages, setError,
+          setLoading, setSecret, setClosed: setClosed,
+          setNumUsers,
+        }
+      )
     })
-  }, [once, user, channel, reconnect])
+  }, [user, channel, reconnect])
 
-  const updateUsers = () => {
+  const updateNumUsers = () => {
     setNumUsers((prev) => prev + 1)
   }
 
+  const appendMessage = (message: TextMessage) => {
+    setMessages((prev) => [...prev, message])
+  }
+
   return {
-    messages, error, loading, opened, secret, numUsers,
+    messages, error, loading, opened: closed, secret, numUsers,
+    updateNumUsers, appendMessage,
     reconnect: () => forceReconnect(Symbol())
   }
 }

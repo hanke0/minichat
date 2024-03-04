@@ -2,10 +2,14 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import { Message, SecretUser } from "@/lib/types";
 import { defaultCrypto } from "@/lib/server/secure";
 
-const secret = process.env.SECRET || "secret";
+export const secret = process.env.SECRET || "secret";
 
 // 15 seconds
-const keepAliveInterval = 15000;
+export const keepAliveInterval = 15000;
+
+export function sendSSEMessage(res: NextApiResponse, msg: Message) {
+  res.write(`data: ${JSON.stringify(msg)}\n\n`)
+}
 
 class User {
   name: string
@@ -119,7 +123,7 @@ const ipRE = {
   ipv6: /^((?=.*::)(?!.*::.+::)(::)?([\dA-F]{1,4}:(:|\b)|){5}|([\dA-F]{1,4}:){6})((([\dA-F]{1,4}((?!\3)::|:\b|$))|(?!\2\3)){2}|(((2[0-4]|1\d|[1-9])?\d|25[0-5])\.?\b){4})$/i
 }
 
-function isIP(ip: string) {
+export function isIP(ip: string) {
   return ipRE.ipv4.test(ip) || ipRE.ipv6.test(ip)
 }
 
@@ -147,7 +151,7 @@ function getClientIpFromXForwardedFor(value: string) {
   return null;
 }
 
-function getClientIP(req: NextApiRequest) {
+export function getClientIP(req: NextApiRequest) {
   const real = req.headers['x-real-ip']
   if (typeof real === 'string' && isIP(real)) {
     return real
@@ -164,7 +168,7 @@ function getClientIP(req: NextApiRequest) {
 }
 
 
-function safeGetRequestUser<T>(req: NextApiRequest, res: NextApiResponse): SecretUser {
+export function safeGetRequestUser<T>(req: NextApiRequest, res: NextApiResponse): SecretUser {
   const data = req.body as { secret: string }
   if (!data.secret) {
     res.status(400).end() // Bad Request
@@ -183,6 +187,4 @@ function safeGetRequestUser<T>(req: NextApiRequest, res: NextApiResponse): Secre
   return secretUser
 }
 
-const channels = new Controller()
-
-export { channels, secret, keepAliveInterval, getClientIP, safeGetRequestUser }
+export const channels = new Controller()
