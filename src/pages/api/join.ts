@@ -1,7 +1,8 @@
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
 import type { NextApiRequest, NextApiResponse } from "next";
 import { defaultCrypto } from "@/lib/secure";
-import { rooms, secret, keepAliveInterval } from "@/pages/api/_room";
+import { channels, keepAliveInterval, getClientIP } from "@/pages/api/_lib";
+import { SecretUser } from "@/lib/types";
 
 export default function handler(
   req: NextApiRequest,
@@ -24,36 +25,44 @@ export default function handler(
     res.status(400).end() // Bad Request
     return
   }
-  const room = req.query.room
-  if (typeof room !== 'string' || !room) {
+  const channel = req.query.channel
+  if (typeof channel !== 'string' || !channel) {
     res.status(400).end() // Bad Request
     return
   }
+  const ip = getClientIP(req)
+  if (!ip) {
+    res.status(403).end() // Forbidden
+    return
+  }
+  const secretUser: SecretUser = {
+    user: user,
+    channel: channel,
+    ip: ip,
+  }
 
-  const encUser = defaultCrypto.encrypt(user)
+  const encUser = defaultCrypto.encrypt(JSON.stringify(secretUser))
   if (!encUser) {
     res.status(500).end() // Internal Server Error
     return
   }
-  const encRoom = defaultCrypto.encrypt(room)
-  if (!encRoom) {
-    res.status(500).end() // Internal Server Error
-    return
-  }
-  const u = rooms.addUserToRoom(room, user, res)
+  const u = channels.addUserToChannel(channel, user, res)
   if (!u) {
     res.status(409) // Conflict
     return
   }
-  console.log(`User ${user} joined room ${room}`)
+  console.log(`User ${user} at ${ip} joined channel ${channel}`)
   let closed = false
   res.once('close', () => {
-    rooms.removeUserFromRoom(room, user)
-    console.log(`User ${user} left room ${room}`)
+    channels.removeUserFromChannel(channel, user)
+    console.log(`User ${user} at ${ip} left channel ${channel}`)
     closed = true
+    channels.broadcast(channel, user, { type: 'user-left', name: user })
   })
   res.status(200)
   res.flushHeaders()
+  u.sendMessage({ type: 'self-join', name: encUser, users: channels.usersInChannel(channel) })
+  channels.broadcast(channel, user, { type: 'user-join', name: user })
   const interval = setInterval(() => {
     if (closed || !u.keepAlive()) {
       clearInterval(interval)
