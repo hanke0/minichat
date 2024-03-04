@@ -65,9 +65,9 @@ export function useJoin({ user, channel }: { user: string, channel: string }) {
   const [loading, setLoading] = useState(true)
   const [secret, setSecret] = useState<string>("")
   const [opened, setOpened] = useState(false)
-  const [users, setUsers] = useState<number>(0)
+  const [numUsers, setNumUsers] = useState<number>(0)
   const [es, setES] = useState<EventSource>(() => makeEventSource(
-    user, channel, setMessages, setError, setLoading, setSecret, setOpened, setUsers
+    user, channel, setMessages, setError, setLoading, setSecret, setOpened, setNumUsers
   ))
 
   useEffect(() => {
@@ -75,15 +75,15 @@ export function useJoin({ user, channel }: { user: string, channel: string }) {
     setError(null)
     setOpened(false)
     setES(makeEventSource(
-      user, channel, setMessages, setError, setLoading, setSecret, setOpened, setUsers))
+      user, channel, setMessages, setError, setLoading, setSecret, setOpened, setNumUsers))
   }, [user, channel, es, reconnect])
 
   const updateUsers = () => {
-    setUsers((prev) => prev + 1)
+    setNumUsers((prev) => prev + 1)
   }
 
   return {
-    messages, error, loading, opened, secret, users, setUsers,
+    messages, error, loading, opened, secret, numUsers,
     reconnect: () => forceReconnect(Symbol())
   }
 }

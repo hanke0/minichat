@@ -2,10 +2,12 @@ import { SelectHTMLAttributes } from 'react'
 import Message from '../components/message'
 import { useTheme } from 'next-themes'
 import { useJoin } from '../hooks/useJoin'
+import { channel } from 'diagnostics_channel'
 
 export default function Home() {
   const { setTheme } = useTheme()
-  const { messages, error, loading, secret, reconnect } = useJoin({ user: 'user1', channel: 'room1' })
+  const user = { user: 'user1', channel: 'channel1' }
+  const { messages, error, loading, secret, numUsers, reconnect } = useJoin(user)
 
   const changeTheme = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setTheme(e.currentTarget.value)
@@ -17,14 +19,14 @@ export default function Home() {
     >
       <div className="flex flex-col divide-y border rounded-lg shadow h-full w-full py-2 px-0">
         <header className="w-full px-8 py-2">
-          <h1 className="font-bold text-2xl">Chatroom room name</h1>
-          <p>6 users in the room</p>
+          <h1 className="font-bold text-2xl">Channel {user.channel}</h1>
+          <p>{numUsers} users in the channel</p>
         </header>
         <main className="flex-1 py-2 px-8 overflow-y-auto overflow-x-hidden">
           {
             messages.map((msg, i) => {
               return (
-                <Message key={msg.id} user={msg.from} isMe={msg.from === 'me'}>
+                <Message key={msg.id} user={msg.from} isMe={msg.from === user.user}>
                   {msg.payload}
                 </Message>
               )

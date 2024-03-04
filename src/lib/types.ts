@@ -8,6 +8,7 @@ interface BaseMessage {
 
 export interface TextMessage extends BaseMessage {
   type: 'text'
+  from: string
 }
 
 export interface SelfJoinMessage extends BaseMessage {
