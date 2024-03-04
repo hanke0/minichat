@@ -1,8 +1,6 @@
-import { SelectHTMLAttributes } from 'react'
 import Message from '../components/message'
 import { useTheme } from 'next-themes'
 import { useJoin } from '../hooks/useJoin'
-import { channel } from 'diagnostics_channel'
 
 export default function Home() {
   const { setTheme } = useTheme()
