@@ -1,5 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import { Message } from "@/lib/types";
+import { Message, SecretUser } from "@/lib/types";
+import { defaultCrypto } from "@/lib/server/secure";
 
 const secret = process.env.SECRET || "secret";
 
@@ -162,6 +163,26 @@ function getClientIP(req: NextApiRequest) {
   return req.socket.remoteAddress
 }
 
+
+function safeGetRequestUser<T>(req: NextApiRequest, res: NextApiResponse): SecretUser {
+  const data = req.body as { secret: string }
+  if (!data.secret) {
+    res.status(400).end() // Bad Request
+    return { user: '', channel: '', ip: '' }
+  }
+  const u = defaultCrypto.decrypt(data.secret)
+  if (!u) {
+    res.status(403).end() // Forbidden
+    return { user: '', channel: '', ip: '' }
+  }
+  const secretUser: SecretUser = JSON.parse(u)
+  if (secretUser.ip !== getClientIP(req)) {
+    res.status(403).end() // Forbidden
+    return { user: '', channel: '', ip: '' }
+  }
+  return secretUser
+}
+
 const channels = new Controller()
 
-export { channels, secret, keepAliveInterval, getClientIP }
+export { channels, secret, keepAliveInterval, getClientIP, safeGetRequestUser }

@@ -1,3 +1,4 @@
+'use client'
 import Message from '../components/message'
 import { useTheme } from 'next-themes'
 import { useJoin } from '../hooks/useJoin'
@@ -11,6 +12,25 @@ export default function Home() {
     setTheme(e.currentTarget.value)
   }
 
+  const submitForm = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+    const text = event.currentTarget.message.value
+    if (!text) {
+      return
+    }
+    event.currentTarget.message.value = ''
+    const data = { secret, message: { type: 'text', payload: text, id: '' } }
+    const res = await fetch('/api/broadcast', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    })
+    if (res.status !== 200) {
+      console.error('Failed to send message', res.status, res.statusText)
+      return
+    }
+  }
+
   return (
     <main
       className={`px-1 md:px-24 py-1 md:py-8 min-h-screen h-screen`}
@@ -22,7 +42,7 @@ export default function Home() {
         </header>
         <main className="flex-1 py-2 px-8 overflow-y-auto overflow-x-hidden">
           {
-            messages.map((msg, i) => {
+            messages.map((msg) => {
               return (
                 <Message key={msg.id} user={msg.from} isMe={msg.from === user.user}>
                   {msg.payload}
@@ -30,14 +50,6 @@ export default function Home() {
               )
             })
           }
-          <Message user='user1'>
-            this is a every long message that is going to be sent by the user
-            word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word
-          </Message>
-          <Message user='me' isMe>
-            this is a every long message that is going to be sent by the user
-            word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word
-          </Message>
         </main>
         <footer className="py-2 px-8">
           <div className="flex flex-row rounded-lg">
@@ -51,8 +63,8 @@ export default function Home() {
               <option value="system">System Theme</option>
             </select>
           </div>
-          <form className="relative">
-            <textarea className="my-2 py-3 pl-4 pr-32 dark:bg-gray-900 focus:outline-none focus:border-blue-500 w-full h-24 border rounded-lg resize-none" />
+          <form onSubmit={submitForm} className="relative">
+            <textarea name="message" required className="my-2 py-3 pl-4 pr-32 dark:bg-gray-900 focus:outline-none focus:border-blue-500 w-full h-24 border rounded-lg resize-none" />
             <button type='submit' className="absolute bg-blue-500 hover:bg-blue-600 text-white right-8 bottom-8 py-2 px-4 rounded rounded-lg">Send</button>
           </form>
         </footer>

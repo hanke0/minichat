@@ -2,7 +2,7 @@
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
 import type { NextApiRequest, NextApiResponse } from "next";
 import { defaultCrypto } from "@/lib/server/secure";
-import { channels, getClientIP } from "@/pages/api/_lib";
+import { channels, getClientIP, safeGetRequestUser } from "@/pages/api/_lib";
 import { Message, SecretUser } from "@/lib/types";
 
 export const config = {
@@ -29,33 +29,21 @@ export default function handler(
     res.status(405).end() // Method Not Allowed
     return
   }
-  const data = req.body as { secret: string, message: Message }
-  if (!data.secret || !data.message || !data.message.type) {
+  const { user, channel, ip } = safeGetRequestUser(req, res)
+  if (!user || !channel || !ip) {
+    return
+  }
+  const { message } = req.body as { message: Message }
+  if (!message || message.type != 'text') {
     res.status(400).end() // Bad Request
     return
   }
-  const { type } = data.message
-  if (type != 'text') {
+  if (!message.payload) {
     res.status(400).end() // Bad Request
     return
   }
-  if (!data.message.payload) {
-    res.status(400).end() // Bad Request
-    return
-  }
-  const u = defaultCrypto.decrypt(data.secret)
-  if (!u) {
-    res.status(403).end() // Forbidden
-    return
-  }
-  const secretUser: SecretUser = JSON.parse(u)
-  if (secretUser.ip !== getClientIP(req)) {
-    res.status(403).end() // Forbidden
-    return
-  }
-  data.message.id = crypto.randomUUID()
-  data.message.from = secretUser.user
-  console.log(`Broadcasting message from ${secretUser.user} at ${secretUser.ip} to channel ${secretUser.channel}`)
-  const n = channels.broadcast(secretUser.channel, secretUser.user, data.message)
+  message.from = user
+  console.log(`Broadcasting message from ${user} at ${ip} to channel ${channel}`)
+  const n = channels.broadcast(channel, user, message)
   res.status(200).json({ ok: true, numUsers: n })
 }

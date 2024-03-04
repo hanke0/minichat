@@ -1,5 +1,6 @@
 'use client'
 import { Message, TextMessage } from "@/lib/types"
+import { on } from "events"
 import { useEffect, useState } from "react"
 
 function makeEventSource(
@@ -66,17 +67,21 @@ export function useJoin({ user, channel }: { user: string, channel: string }) {
   const [secret, setSecret] = useState<string>("")
   const [opened, setOpened] = useState(false)
   const [numUsers, setNumUsers] = useState<number>(0)
-  const [es, setES] = useState<EventSource>(() => makeEventSource(
-    user, channel, setMessages, setError, setLoading, setSecret, setOpened, setNumUsers
-  ))
+  const [es, setES] = useState<EventSource | null>(null)
+  const [once, setOnce] = useState(false)
 
   useEffect(() => {
     setLoading(true)
     setError(null)
     setOpened(false)
-    setES(makeEventSource(
-      user, channel, setMessages, setError, setLoading, setSecret, setOpened, setNumUsers))
-  }, [user, channel, es, reconnect])
+    setES((pre) => {
+      if (pre) {
+        pre.close()
+      }
+      return makeEventSource(
+        user, channel, setMessages, setError, setLoading, setSecret, setOpened, setNumUsers)
+    })
+  }, [once, user, channel, reconnect])
 
   const updateUsers = () => {
     setNumUsers((prev) => prev + 1)
