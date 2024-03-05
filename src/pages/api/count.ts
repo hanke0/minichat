@@ -1,7 +1,7 @@
-import { channels, safeGetRequestUser } from "../_lib"
+import { channels, safeGetRequestUser } from "./_lib"
 import type { NextApiRequest, NextApiResponse } from "next"
 
-export function GET(
+export default function handle(
   req: NextApiRequest,
   res: NextApiResponse<{ count: number }>,
 ) {

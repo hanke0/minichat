@@ -1,9 +1,8 @@
 
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
 import type { NextApiRequest, NextApiResponse } from "next";
-import { defaultCrypto } from "@/lib/server/secure";
-import { channels, getClientIP, safeGetRequestUser } from "@/app/api/_lib";
-import { Message, SecretUser } from "@/lib/types";
+import { channels, safeGetRequestUser } from "@/pages/api/_lib";
+import { Message } from "@/lib/types";
 
 export const config = {
   api: {
@@ -21,7 +20,7 @@ type Response = {
   numUsers: number
 }
 
-export function POST(
+export default function handle(
   req: NextApiRequest,
   res: NextApiResponse<Response>,
 ) {

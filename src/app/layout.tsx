@@ -1,10 +1,13 @@
 import type { Metadata } from "next";
+import { Providers } from "@/app/providers";
+import { Toast } from "@/components/toast";
 import "./globals.css";
-import { ThemeProvider } from 'next-themes'
 
 export const metadata: Metadata = {
   title: "Mini Chat",
   description: "A minimal chat app",
+  viewport: "width=device-width, initial-scale=1",
+  manifest: "/manifest.json",
 };
 
 export default function RootLayout({
@@ -15,9 +18,10 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <ThemeProvider attribute="class">
+        <Providers>
+          <Toast />
           {children}
-        </ThemeProvider>
+        </Providers>
       </body>
     </html>
   );

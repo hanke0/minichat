@@ -4,19 +4,35 @@ import { useTheme } from 'next-themes'
 import { useJoin } from '../hooks/useJoin'
 import { useSearchParams } from 'next/navigation'
 import { TextMessage } from '@/lib/types'
-import { useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
+import toast from 'react-hot-toast'
 
 export function MyHome() {
   const { setTheme } = useTheme()
   const query = useSearchParams()
-  console.log('query', query, query.toString(), query.get("user"), query.get("channel"))
-  const user = { user: query.get("user") || "user1", channel: query.get("channel") || "default" }
+  const [scroll, setScroll] = useState(Symbol())
+  const [bottom, setBottom] = useState(true)
+  useEffect(() => {
+    if (!bottom) {
+      return
+    }
+    msgEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+  }, [scroll, bottom])
+  const channel = query?.get("channel") || undefined
+  const user = query?.get("user") || undefined
   const { messages, error, loading, secret, numUsers,
-    appendMessage } = useJoin(user)
+    appendMessage } = useJoin({ user, channel })
   const msgEditorRef = useRef<HTMLTextAreaElement>(null)
   const msgEndRef = useRef<HTMLDivElement>(null)
-  if (loading || error) {
+
+  if (loading || error || !user || !channel) {
     return <div>{error?.message || "Loading..."}</div>
+  }
+
+  const handleMessageScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    const { scrollHeight, scrollTop, clientHeight } = e.currentTarget
+    const bottomLength = Math.abs(scrollHeight - (scrollTop + clientHeight))
+    setBottom(bottomLength < 1)
   }
 
   const changeTheme = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -30,7 +46,7 @@ export function MyHome() {
     if (!ele || !text) {
       return
     }
-    const message: TextMessage = { type: 'text', payload: text, id: crypto.randomUUID(), from: user.user }
+    const message: TextMessage = { type: 'text', payload: text, id: crypto.randomUUID(), from: user }
     const data = { secret, message: message }
     const res = await fetch('/api/broadcast', {
       method: 'POST',
@@ -39,10 +55,11 @@ export function MyHome() {
     })
     if (res.status !== 200) {
       console.error('Failed to send message', res.status, res.statusText)
+      toast.error('Failed to send message')
       return
     }
     appendMessage(message)
-    msgEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+    setScroll(Symbol())
     ele.value = ''
   }
 
@@ -52,25 +69,26 @@ export function MyHome() {
     >
       <div className="flex flex-col divide-y border rounded-lg shadow h-full w-full py-2 px-0">
         <header className="w-full px-8 py-2">
-          <h1 className="font-bold text-2xl">Channel {user.channel}</h1>
+          <h1 className="font-bold text-2xl">Channel {channel}</h1>
           <p>{numUsers} users in the channel</p>
         </header>
-        <main className="flex-1 py-2 px-8 overflow-y-auto overflow-x-hidden">
+        <div className="flex-1 py-2 px-8 overflow-y-auto overflow-x-hidden"
+          onScroll={handleMessageScroll}>
           {
             messages.map((msg) => {
               return (
-                <Message key={msg.id} user={msg.from} isMe={msg.from === user.user}>
+                <Message key={msg.id} user={msg.from} isMe={msg.from === user}>
                   {msg.payload}
                 </Message>
               )
             })
           }
           <div ref={msgEndRef}></div>
-        </main>
+        </div>
         <footer className="py-2 px-8">
           <div className="flex flex-row rounded-lg">
             <div className='rounded-lg border bg-gray-100 dark:bg-gray-800 py-1 px-4'>
-              You are {user.user}
+              You are {user}
             </div>
             <select className='block rounded-lg border bg-gray-100 dark:bg-gray-800 py-1 px-4 ml-2'
               onChange={changeTheme}>

@@ -25,6 +25,11 @@ function makeEventSource(
     setNumUsers
   }: eventSourceParam
 ) {
+  setError(null)
+  setLoading(true)
+  setSecret("")
+  setClosed(true)
+
   const query = new URLSearchParams({ user, channel }).toString()
   const eventSource = new EventSource(`/api/join?${query}`)
 
@@ -52,7 +57,6 @@ function makeEventSource(
   })
 
   eventSource.addEventListener('message', (event) => {
-    setError(null)
     console.log('EventSource message:', event.data)
     try {
       const msg = JSON.parse(event.data) as Message
@@ -76,16 +80,20 @@ function makeEventSource(
         setLoading(false)
         return
       }
+      if (msg.type === 'error') {
+        setError(new Error(msg.payload || 'Unknown error'))
+        eventSource.close()
+        return
+      }
     } catch (error) {
       console.error('Error parsing message', error, event.data)
-      eventSource.close()
     }
   })
 
   return eventSource
 }
 
-export function useJoin({ user, channel }: { user: string, channel: string }) {
+export function useJoin({ user, channel }: { user?: string, channel?: string }) {
   const [reconnect, forceReconnect] = useState(Symbol())
   const [messages, setMessages] = useState<TextMessage[]>([])
   const [error, setError] = useState<Error | null>(null)
@@ -96,25 +104,30 @@ export function useJoin({ user, channel }: { user: string, channel: string }) {
   const [, setES] = useState<EventSource | null>(null)
 
   useEffect(() => {
-    setError(null)
-    setLoading(true)
-    setSecret("")
-    setClosed(true)
-
+    let newEs: EventSource | null = null
+    if (!user || !channel) {
+      return
+    }
     setES((pre) => {
       if (pre) {
-        if (pre.readyState !== EventSource.CLOSED) {
-          return pre
-        }
+        return pre;
       }
-      return makeEventSource(
+      const es = makeEventSource(
         {
-          user, channel, setMessages, setError,
+          user, channel,
+          setMessages, setError,
           setLoading, setSecret, setClosed: setClosed,
           setNumUsers,
         }
       )
+      newEs = es
+      return es
     })
+    return () => {
+      if (newEs) {
+        newEs.close()
+      }
+    }
   }, [user, channel, reconnect])
 
   const updateNumUsers = () => {

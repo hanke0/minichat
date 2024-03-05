@@ -1,31 +1,45 @@
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
 import type { NextApiRequest, NextApiResponse } from "next";
 import { defaultCrypto } from "@/lib/server/secure";
-import { channels, keepAliveInterval, getClientIP, sendSSEMessage } from "@/app/api/_lib";
+import { channels, keepAliveInterval, getClientIP, sendSSEMessage } from "@/pages/api/_lib";
 import { SecretUser } from "@/lib/types";
 import { clearInterval } from "timers";
 
-export function GET(
+export default function handler(
   req: NextApiRequest,
   res: NextApiResponse,
 ) {
+  if (req.method !== 'GET') {
+    res.status(405).end() // Method Not Allowed
+    return
+  }
   if (req.headers.accept !== 'text/event-stream') {
     res.status(406).end() // Not Acceptable
     return
   }
-  const user = req.query.user
+  res.setHeader('Content-Encoding', 'none');
+  res.setHeader('Content-Type', 'text/event-stream');
+  res.setHeader('Cache-Control', 'no-cache');
+  res.setHeader('Connection', 'keep-alive');
+  res.status(200)
+  res.flushHeaders()
+
+  const user = req.query['user']
   if (typeof user !== 'string' || !user) {
-    res.status(400).end() // Bad Request
+    sendSSEMessage(res, { type: 'error', payload: "User not provided" })
+    res.end()
     return
   }
-  const channel = req.query.channel
+  const channel = req.query['channel']
   if (typeof channel !== 'string' || !channel) {
-    res.status(400).end() // Bad Request
+    sendSSEMessage(res, { type: 'error', payload: "Channel not provided" })
+    res.end()
     return
   }
   const ip = getClientIP(req)
   if (!ip) {
-    res.status(403).end() // Forbidden
+    sendSSEMessage(res, { type: 'error', payload: "User ip is unknown" })
+    res.end()
     return
   }
   const secretUser: SecretUser = {
@@ -35,18 +49,16 @@ export function GET(
   }
   const encUser = defaultCrypto.encrypt(JSON.stringify(secretUser))
   if (!encUser) {
-    res.status(500).end() // Internal Server Error
+    sendSSEMessage(res, { type: 'error', payload: "Encrypt user data fails" })
+    res.end()
     return
   }
-  res.setHeader('Content-Encoding', 'none');
-  res.setHeader('Content-Type', 'text/event-stream');
-  res.setHeader('Cache-Control', 'no-cache');
-  res.setHeader('Connection', 'keep-alive');
   const u = channels.addUserToChannel(channel, user, res)
   if (!u) {
     sendSSEMessage(res, { type: 'self-join', payload: "", conflict: true, id: "", users: 0 })
     return
   }
+
   console.log(`User ${user} at ${ip} joined channel ${channel}`)
   let closed = false
   res.once('close', () => {

@@ -2,7 +2,7 @@
 
 interface BaseMessage {
   type: string
-  id: string
+  id?: string
   payload: string
 }
 
@@ -25,8 +25,13 @@ export interface UserLeftMessage extends BaseMessage {
   type: 'user-left'
 }
 
+export interface ErrorMessage extends BaseMessage {
+  type: 'error'
+}
+
 export type Message =
   | TextMessage | SelfJoinMessage | UserJoinMessage | UserLeftMessage
+  | ErrorMessage
 
 export type SecretUser = {
   user: string
