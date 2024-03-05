@@ -167,14 +167,21 @@ export function getClientIP(req: NextApiRequest) {
   return req.socket.remoteAddress
 }
 
+function getSecret(req: NextApiRequest) {
+  if (req.method === 'GET') {
+    return req.query.secret
+  }
+  return req.body.secret
+}
 
-export function safeGetRequestUser<T>(req: NextApiRequest, res: NextApiResponse): SecretUser {
-  const data = req.body as { secret: string }
-  if (!data.secret) {
+export function safeGetRequestUser(
+  req: NextApiRequest, res: NextApiResponse): SecretUser {
+  const secret = getSecret(req)
+  if (!secret) {
     res.status(400).end() // Bad Request
     return { user: '', channel: '', ip: '' }
   }
-  const u = defaultCrypto.decrypt(data.secret)
+  const u = defaultCrypto.decrypt(secret)
   if (!u) {
     res.status(403).end() // Forbidden
     return { user: '', channel: '', ip: '' }

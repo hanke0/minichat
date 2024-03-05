@@ -1,6 +1,7 @@
 'use client'
 import { Message, TextMessage } from "@/lib/types"
 import { useEffect, useState } from "react"
+import { toast } from "react-hot-toast"
 
 type eventSourceParam = {
   channel: string
@@ -130,8 +131,19 @@ export function useJoin({ user, channel }: { user?: string, channel?: string }) 
     }
   }, [user, channel, reconnect])
 
-  const updateNumUsers = () => {
-    setNumUsers((prev) => prev + 1)
+  const updateNumUsers = async () => {
+    const query = new URLSearchParams()
+    query.set('secret', secret)
+    const res = await fetch(`/api/count?${query.toString()}`)
+    if (res.status !== 200) {
+      console.error('Failed to refresh', res.status, res.statusText)
+      toast.error('Failed to refresh')
+      return
+    }
+    const data = await res.json()
+    if (typeof data.count === 'number' || data.count > 0) {
+      setNumUsers(data.count)
+    }
   }
 
   const appendMessage = (message: TextMessage) => {

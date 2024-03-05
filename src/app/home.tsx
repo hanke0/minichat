@@ -6,6 +6,7 @@ import { useSearchParams } from 'next/navigation'
 import { TextMessage } from '@/lib/types'
 import { useEffect, useRef, useState } from 'react'
 import toast from 'react-hot-toast'
+import { Fresh } from '@/components/fresh'
 
 export function MyHome() {
   const { setTheme } = useTheme()
@@ -21,7 +22,7 @@ export function MyHome() {
   const channel = query?.get("channel") || undefined
   const user = query?.get("user") || undefined
   const { messages, error, loading, secret, numUsers,
-    appendMessage } = useJoin({ user, channel })
+    updateNumUsers, appendMessage } = useJoin({ user, channel })
   const msgEditorRef = useRef<HTMLTextAreaElement>(null)
   const msgEndRef = useRef<HTMLDivElement>(null)
 
@@ -70,7 +71,10 @@ export function MyHome() {
       <div className="flex flex-col divide-y border rounded-lg shadow h-full w-full py-2 px-0">
         <header className="w-full px-8 py-2">
           <h1 className="font-bold text-2xl">Channel {channel}</h1>
-          <p>{numUsers} users in the channel</p>
+          <p>
+            {numUsers} users in the channel
+            <Fresh height="0.75rem" width="0.75rem" className='inline mx-1' onClick={updateNumUsers} />
+          </p>
         </header>
         <div className="flex-1 py-2 px-8 overflow-y-auto overflow-x-hidden"
           onScroll={handleMessageScroll}>
