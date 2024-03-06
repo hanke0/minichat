@@ -15,7 +15,7 @@ export function ThemeAction(
     setTheme(e.currentTarget.value)
   }
   return (
-    <select className="cursor-pointer block bg-transparent text-inherit outline-none"
+    <select className="cursor-pointer block bg-transparent text-inherit outline-none focus:bg-gray-100 dark:focus:bg-gray-800 dark:text-gray-300 dark:hover:text-gray-100 dark:hover:bg-gray-800"
       onChange={changeTheme} value={theme}
     >
       {

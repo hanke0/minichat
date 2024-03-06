@@ -10,7 +10,7 @@ type MessageProps = {
 
 const wordSepRE = / -_/
 
-export default function Message({ children, user, isMe }: MessageProps) {
+export function Message({ children, user, isMe }: MessageProps) {
   const order = isMe ? 'flex-row-reverse' : 'flex-row'
   const bg = isMe ? 'bg-[#8FCB9B]' : 'bg-[#EAE6E5] dark:bg-[#12130F]'
   const head = user.split(wordSepRE).map((w) => w ? w.charAt(0).toUpperCase() : '').join('').slice(0, 2)
