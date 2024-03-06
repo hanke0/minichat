@@ -56,6 +56,7 @@ export default function handler(
   const u = channels.addUserToChannel(channel, user, res)
   if (!u) {
     sendSSEMessage(res, { type: 'self-join', payload: "", conflict: true, id: "", users: 0 })
+    res.end()
     return
   }
 
@@ -71,8 +72,7 @@ export default function handler(
     console.error(`User ${user} at ${ip} error`, err)
     closed = true
   })
-  res.status(200)
-  res.flushHeaders()
+  res.write('retry: 1500\n\n') // 1.5 seconds
   u.sendMessage({ type: 'self-join', payload: encUser, users: channels.usersInChannel(channel), id: crypto.randomUUID(), conflict: false })
   channels.broadcast(channel, user, { type: 'user-join', payload: user, id: crypto.randomUUID() })
   const interval = setInterval(() => {

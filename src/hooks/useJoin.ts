@@ -1,6 +1,6 @@
 'use client'
 import { Message, TextMessage } from "@/lib/types"
-import { useEffect, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 import { toast } from "react-hot-toast"
 
 type eventSourceParam = {
@@ -29,7 +29,7 @@ function makeEventSource(
   setError(null)
   setLoading(true)
   setSecret("")
-  setClosed(true)
+  setClosed(false)
 
   const query = new URLSearchParams({ user, channel }).toString()
   const eventSource = new EventSource(`/api/join?${query}`)
@@ -46,6 +46,7 @@ function makeEventSource(
 
   eventSource.addEventListener('error', (event) => {
     console.log('EventSource failed:', eventSource.readyState, event)
+    setSecret("")
   })
 
   eventSource.addEventListener('message', (event) => {
@@ -86,14 +87,36 @@ function makeEventSource(
 }
 
 export function useJoin({ user, channel }: { user?: string, channel?: string }) {
-  const [reconnect, forceReconnect] = useState(Symbol())
   const [messages, setMessages] = useState<TextMessage[]>([])
   const [error, setError] = useState<Error | null>(null)
   const [loading, setLoading] = useState(true)
   const [secret, setSecret] = useState("")
-  const [closed, setClosed] = useState(true)
+  const [closed, setClosed] = useState(false) // EventSource is closed manually
   const [numUsers, setNumUsers] = useState<number>(0)
   const [, setES] = useState<EventSource | null>(null)
+
+
+  const forceReconnect = useCallback(() => {
+    if (!user || !channel) {
+      return
+    }
+
+    setES((pre) => {
+      if (pre) {
+        pre.close()
+      }
+      const es = makeEventSource(
+        {
+          user, channel,
+          setMessages, setError,
+          setLoading, setSecret, setClosed,
+          setNumUsers,
+        }
+      )
+      return es
+    })
+    setLoading(false) // forceReconnect no need to show loading
+  }, [user, channel])
 
   useEffect(() => {
     let newEs: EventSource | null = null
@@ -102,13 +125,16 @@ export function useJoin({ user, channel }: { user?: string, channel?: string }) 
     }
     setES((pre) => {
       if (pre) {
-        return pre;
+        if (!closed) {
+          return pre
+        }
+        pre.close()
       }
       const es = makeEventSource(
         {
           user, channel,
           setMessages, setError,
-          setLoading, setSecret, setClosed: setClosed,
+          setLoading, setSecret, setClosed,
           setNumUsers,
         }
       )
@@ -120,7 +146,7 @@ export function useJoin({ user, channel }: { user?: string, channel?: string }) 
         newEs.close()
       }
     }
-  }, [user, channel, reconnect])
+  }, [user, channel, closed])
 
   const updateNumUsers = async () => {
     const query = new URLSearchParams()
@@ -143,7 +169,6 @@ export function useJoin({ user, channel }: { user?: string, channel?: string }) 
 
   return {
     messages, error, loading, opened: closed, secret, numUsers,
-    updateNumUsers, appendMessage,
-    reconnect: () => forceReconnect(Symbol())
+    updateNumUsers, appendMessage, forceReconnect
   }
 }

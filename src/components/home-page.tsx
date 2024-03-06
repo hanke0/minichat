@@ -12,6 +12,7 @@ import { MessageAction } from '@/components/message-action'
 import { ThemeAction } from '@/components/theme-action'
 import { LoadingPage } from '@/components/loading-page'
 import { ErrorPage } from '@/components/error-page'
+import { Status } from './status'
 
 export function HomePage() {
   const query = useSearchParams()
@@ -26,7 +27,7 @@ export function HomePage() {
   const channel = query?.get("channel") || undefined
   const user = query?.get("user") || undefined
   const { messages, error, loading, secret, numUsers,
-    updateNumUsers, appendMessage } = useJoin({ user, channel })
+    updateNumUsers, appendMessage, forceReconnect } = useJoin({ user, channel })
   const msgEditorRef = useRef<HTMLTextAreaElement>(null)
   const msgEndRef = useRef<HTMLDivElement>(null)
   if (!user || !channel) {
@@ -47,6 +48,10 @@ export function HomePage() {
 
   const submitForm = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
+    if (!secret) {
+      toast.error('You are offline')
+      return
+    }
     const ele = msgEditorRef.current
     const text = ele?.value
     if (!ele || !text) {
@@ -73,7 +78,10 @@ export function HomePage() {
     <Main>
       <div className="flex flex-col divide-y border rounded-lg shadow h-full w-full py-2 px-0">
         <header className="w-full px-8 py-2">
-          <h1 className="font-bold text-2xl">Channel {channel}</h1>
+          <div className="font-bold text-2xl">
+            <span className="pr-4">Channel {channel}</span>
+            <Status status={secret !== ""} onOffClick={forceReconnect} />
+          </div>
           <p>
             {numUsers} users in the channel
             <FreshSvg height="0.75rem" width="0.75rem" className='inline mx-1' onClick={updateNumUsers} />
