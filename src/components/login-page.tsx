@@ -1,8 +1,8 @@
 import { Main } from "@/components/main"
-import { RandomSvg } from "./random-svg"
+import { lowerDigits, randomAlnum, randomName } from "@/lib/random"
+import { RandomSvg } from "@/components/random-svg"
 import { useRef } from "react"
 import Image from "next/image"
-import { lowerDigits, randomAlnum, randomName } from "@/lib/random"
 
 export function LoginPage({ channel }: { channel?: string }) {
   const channelRef = useRef<HTMLInputElement>(null)
@@ -14,16 +14,19 @@ export function LoginPage({ channel }: { channel?: string }) {
       <div className="h-full flex flex-col items-center justify-start">
         <div className="basis-1 text-center pt-16">
           <Image alt="logo" width={80} height={40}
-            src="/minichat.svg"></Image>
+            src="/minichat.svg"
+          />
         </div>
         <h1 className="basis-1 py-2 text-center text-3xl pb-8">Join to Channel</h1>
         <form className="basic-1 w-90 flex flex-col basic-1 border rounded-lg bg-slate-100 dark:bg-slate-600 px-8 py-4"
-          method="get">
+          method="get"
+        >
           <div className="basis-1 py-2">
             <label className="block">Channel<RandomSvg className="inline block m-1" width="1rem" height="1.2rem"
               onClick={() => {
                 channelRef.current!.value = randomAlnum(6, lowerDigits)
-              }} />
+              }}
+            />
             </label>
             <input className={inputClass} value={channel} type="text" name="channel" placeholder="channel" ref={channelRef} required />
           </div>
@@ -31,7 +34,8 @@ export function LoginPage({ channel }: { channel?: string }) {
             <label className="block">Name<RandomSvg className="inline block m-1" width="1rem" height="1.2rem"
               onClick={() => {
                 nameRef.current!.value = randomName()
-              }} />
+              }}
+            />
             </label>
             <input className={inputClass} type="text" name="user" placeholder="name" ref={nameRef} required />
           </div>

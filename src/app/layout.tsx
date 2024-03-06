@@ -1,6 +1,7 @@
-import type { Metadata } from "next";
 import { Providers } from "@/app/providers";
 import { Toast } from "@/components/toast";
+import React from "react";
+import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {

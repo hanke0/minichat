@@ -1,10 +1,8 @@
 'use client'
 import Message from './message'
+import { Status } from './status'
 import { useJoin } from '../hooks/useJoin'
-import { useSearchParams } from 'next/navigation'
 import { TextMessage } from '@/lib/types'
-import { useEffect, useRef, useState } from 'react'
-import toast from 'react-hot-toast'
 import { FreshSvg } from '@/components/fresh-svg'
 import { Main } from '@/components/main'
 import { LoginPage } from '@/components/login-page'
@@ -12,7 +10,10 @@ import { MessageAction } from '@/components/message-action'
 import { ThemeAction } from '@/components/theme-action'
 import { LoadingPage } from '@/components/loading-page'
 import { ErrorPage } from '@/components/error-page'
-import { Status } from './status'
+import toast from 'react-hot-toast'
+import { useEffect, useRef, useState } from 'react'
+import { useSearchParams } from 'next/navigation'
+import React from 'react'
 
 export function HomePage() {
   const query = useSearchParams()
@@ -84,11 +85,12 @@ export function HomePage() {
           </div>
           <p>
             {numUsers} users in the channel
-            <FreshSvg height="0.75rem" width="0.75rem" className='inline mx-1' onClick={updateNumUsers} />
+            <FreshSvg height="0.75rem" width="0.75rem" className="inline mx-1" onClick={updateNumUsers} />
           </p>
         </header>
         <div className="flex-1 py-2 px-8 overflow-y-auto overflow-x-hidden"
-          onScroll={handleMessageScroll}>
+          onScroll={handleMessageScroll}
+        >
           {
             messages.map((msg) => {
               return (
@@ -98,7 +100,7 @@ export function HomePage() {
               )
             })
           }
-          <div ref={msgEndRef}></div>
+          <div ref={msgEndRef} />
         </div>
         <footer className="py-2 px-8">
           <div className="flex flex-row rounded-lg">
@@ -107,7 +109,7 @@ export function HomePage() {
           </div>
           <form onSubmit={submitForm} className="relative">
             <textarea name="message" required className="my-2 py-3 pl-4 pr-32 dark:bg-gray-900 focus:outline-none focus:border-blue-500 w-full h-24 border rounded-lg resize-none" ref={msgEditorRef} />
-            <button type='submit' className="absolute bg-blue-500 hover:bg-blue-600 text-white right-8 bottom-8 py-2 px-4 rounded rounded-lg">Send</button>
+            <button type="submit" className="absolute bg-blue-500 hover:bg-blue-600 text-white right-8 bottom-8 py-2 px-4 rounded rounded-lg">Send</button>
           </form>
         </footer>
       </div>

@@ -1,6 +1,6 @@
-import type { NextApiRequest, NextApiResponse } from "next";
 import { Message, SecretUser } from "@/lib/types";
 import { defaultCrypto } from "@/lib/server/secure";
+import type { NextApiRequest, NextApiResponse } from "next";
 
 export const secret = process.env.SECRET || "secret";
 
@@ -113,7 +113,6 @@ class Controller {
   }
 
   broadcast(channel: string, user: string, msg: Message) {
-    const c = this.channels.get(channel)
     return this.channels.get(channel)?.broadcast(user, JSON.stringify(msg)) || 0
   }
 }

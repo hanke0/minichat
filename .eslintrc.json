@@ -1,3 +1,68 @@
 {
-  "extends": "next/core-web-vitals"
+  "extends": [
+    "eslint:recommended",
+    "next/core-web-vitals"
+  ],
+  "ignorePatterns": [
+    "/.git",
+    "/.github"
+  ],
+  "rules": {
+    "import/order": [
+      "error",
+      {
+        "groups": [
+          "index",
+          "sibling",
+          "parent",
+          "internal",
+          "external",
+          "builtin",
+          "object",
+          "type"
+        ]
+      }
+    ],
+    "indent": [
+      "error",
+      2,
+      {
+        "SwitchCase": 1
+      }
+    ],
+    "max-len": [
+      "error",
+      {
+        "code": 100,
+        "ignoreUrls": true,
+        "ignoreStrings": true,
+        "ignoreTemplateLiterals": true,
+        "ignoreRegExpLiterals": true,
+        "ignorePattern": "d=\"([\\s\\S]*?)\""
+      }
+    ],
+    "react/jsx-closing-bracket-location": [
+      "error",
+      "line-aligned"
+    ],
+    "react/jsx-closing-tag-location": "error",
+    "react/jsx-tag-spacing": "error",
+    "react/jsx-curly-spacing": [
+      "error",
+      "never"
+    ],
+    "jsx-quotes": [
+      "error",
+      "prefer-double"
+    ],
+    "no-multi-spaces": "error",
+    "react/jsx-boolean-value": "error",
+    "react/jsx-wrap-multilines": "error",
+    "react/self-closing-comp": "error"
+  },
+  "settings": {
+    "react": {
+      "version": "detect"
+    }
+  }
 }

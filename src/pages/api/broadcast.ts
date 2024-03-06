@@ -1,8 +1,8 @@
 
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
-import type { NextApiRequest, NextApiResponse } from "next";
 import { channels, safeGetRequestUser } from "@/pages/api/_lib";
 import { Message } from "@/lib/types";
+import type { NextApiRequest, NextApiResponse } from "next";
 
 export const config = {
   api: {

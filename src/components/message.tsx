@@ -1,6 +1,6 @@
 'use client'
-
 import TextHead from "@/components/text-head"
+import React from "react"
 
 type MessageProps = {
   children: React.ReactNode | string
@@ -8,7 +8,7 @@ type MessageProps = {
   isMe?: boolean
 }
 
-const wordSepRE = / \-_/
+const wordSepRE = / -_/
 
 export default function Message({ children, user, isMe }: MessageProps) {
   const order = isMe ? 'flex-row-reverse' : 'flex-row'

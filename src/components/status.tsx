@@ -1,8 +1,7 @@
 export function Status({
-  status, className, height, width, onOffClick
+  status, onOffClick
 }: {
-  status: boolean, className?: string,
-  height?: number | string, width?: number | string
+  status: boolean,
   onOffClick?: () => void
 }) {
   const color = status ? 'bg-green-500' : 'bg-red-500'
@@ -14,9 +13,10 @@ export function Status({
         if (!status && onOffClick) {
           onOffClick()
         }
-      }}>
-      <span className={`${pingCss} absolute inline-flex h-full w-full rounded-full opacity-75`}></span>
-      <span className={`${color} relative inline-flex rounded-full h-3 w-3`}></span>
+      }}
+    >
+      <span className={`${pingCss} absolute inline-flex h-full w-full rounded-full opacity-75`} />
+      <span className={`${color} relative inline-flex rounded-full h-3 w-3`} />
     </span>
   )
 }

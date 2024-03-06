@@ -1,5 +1,5 @@
-import React from 'react';
 import { Main } from '@/components/main';
+import React from 'react';
 import Link from 'next/link';
 
 
@@ -14,7 +14,9 @@ export function ErrorPage({ error }: { error?: Error | string }) {
           <Link className="block px-4" href="/" onClick={(e) => {
             e.preventDefault();
             window.location.reload();
-          }}>Read Page</Link>
+          }}
+          >Read Page
+          </Link>
         </div>
       </div>
     </Main>

@@ -1,3 +1,5 @@
+import React from 'react'
+
 export function RandomSvg({
   height, width, className,
   onClick
@@ -5,7 +7,7 @@ export function RandomSvg({
   height: string | number,
   width: string | number,
   className?: string
-  onClick?: (e: React.MouseEvent<SVGSVGElement, MouseEvent>) => void
+  onClick?: () => void
 }) {
   return (
     <svg xmlns="http://www.w3.org/2000/svg"
@@ -14,7 +16,8 @@ export function RandomSvg({
       className={`${className} fill-none stroke-current`}
       onClick={onClick}
       preserveAspectRatio="xMidYMin"
-      viewBox="0 0 72 72">
+      viewBox="0 0 72 72"
+    >
       <g id="color" />
       <g id="hair" />
       <g id="skin" />

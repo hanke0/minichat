@@ -1,9 +1,9 @@
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
-import type { NextApiRequest, NextApiResponse } from "next";
 import { defaultCrypto } from "@/lib/server/secure";
 import { channels, keepAliveInterval, getClientIP, sendSSEMessage } from "@/pages/api/_lib";
 import { SecretUser } from "@/lib/types";
 import { clearInterval } from "timers";
+import type { NextApiRequest, NextApiResponse } from "next";
 
 export default function handler(
   req: NextApiRequest,

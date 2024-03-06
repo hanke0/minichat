@@ -1,17 +1,17 @@
 'use client'
 import { Message, TextMessage } from "@/lib/types"
-import { useCallback, useEffect, useState } from "react"
+import { useCallback, useEffect, useState, Dispatch, SetStateAction } from "react"
 import { toast } from "react-hot-toast"
 
 type eventSourceParam = {
   channel: string
   user: string
-  setMessages: (set: (pre: TextMessage[]) => TextMessage[]) => void
-  setError: (error: Error | null) => void
-  setLoading: (loading: boolean) => void
-  setSecret: (sendSecret: string) => void
-  setClosed: (opened: boolean) => void
-  setNumUsers: (users: number) => void
+  setMessages: Dispatch<SetStateAction<TextMessage[]>>
+  setError: Dispatch<SetStateAction<Error | null>>
+  setLoading: Dispatch<SetStateAction<boolean>>
+  setSecret: Dispatch<SetStateAction<string>>
+  setClosed: Dispatch<SetStateAction<boolean>>
+  setNumUsers: Dispatch<SetStateAction<number>>
 }
 
 function makeEventSource(

@@ -1,7 +1,7 @@
-import { Suspense } from "react"
-import type { Viewport } from 'next'
 import { HomePage } from "@/components/home-page"
 import { LoadingPage } from "@/components/loading-page"
+import { Suspense } from "react"
+import type { Viewport } from 'next'
 
 // This component passed as a fallback to the Suspense boundary
 // will be rendered in place of the search bar in the initial HTML.
