@@ -1,4 +1,5 @@
 import { Suspense } from "react"
+import type { Viewport } from 'next'
 import { HomePage } from "@/components/home-page"
 import { LoadingPage } from "@/components/loading-page"
 
@@ -8,6 +9,12 @@ import { LoadingPage } from "@/components/loading-page"
 // will be replaced with the `<SearchBar>` component.
 function Fallback() {
   return <LoadingPage />
+}
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
 }
 
 export default function Home() {
