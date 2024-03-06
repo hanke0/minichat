@@ -1,5 +1,4 @@
 'use client'
-import Message from './message'
 import { Status } from './status'
 import { useJoin } from '../hooks/useJoin'
 import { TextMessage } from '@/lib/types'
@@ -10,13 +9,11 @@ import { MessageAction } from '@/components/message-action'
 import { ThemeAction } from '@/components/theme-action'
 import { LoadingPage } from '@/components/loading-page'
 import { ErrorPage } from '@/components/error-page'
-import toast from 'react-hot-toast'
-import { useEffect, useRef, useState } from 'react'
-import { useSearchParams } from 'next/navigation'
-import React from 'react'
 import { MessageEditor } from '@/components/message-editor'
 import { MessageBox } from '@/components/message-box'
 import { useScroll } from '@/hooks/useScroll'
+import { useSearchParams } from 'next/navigation'
+import React from 'react'
 
 export function HomePage() {
   const query = useSearchParams()
@@ -33,6 +30,11 @@ export function HomePage() {
   }
   if (loading) {
     return <LoadingPage />
+  }
+
+  const onSuccessfulSend = (message: TextMessage) => {
+    appendMessage(message)
+    scrollBottom()
   }
 
   return (
@@ -59,12 +61,7 @@ export function HomePage() {
           <MessageEditor
             secret={secret}
             user={user}
-            onSuccessfulSend={
-              (msg: TextMessage) => {
-                appendMessage(msg)
-                scrollBottom()
-              }
-            }
+            onSuccessfulSend={onSuccessfulSend}
           />
         </footer>
       </div>

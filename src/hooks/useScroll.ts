@@ -1,4 +1,5 @@
 import { useEffect, useState, useRef } from 'react'
+import React from 'react'
 
 export function useScroll() {
   const endRef = useRef<HTMLDivElement>(null)

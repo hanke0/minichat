@@ -1,14 +1,18 @@
+import { TextMessage } from '@/lib/types'
 import { useRef } from 'react'
 import { toast } from 'react-hot-toast'
-import { TextMessage } from '@/lib/types'
+import React from 'react'
 
 export function MessageEditor(
-  { secret, user, onSuccessfulSend }:
+  { secret, user,
+    onSuccessfulSend,
+  }:
     {
       secret: string,
       user: string,
-      onSuccessfulSend?: (msg: TextMessage) => void,
-    },
+      /* eslint-disable-next-line no-unused-vars */
+      onSuccessfulSend: (message: TextMessage) => void,
+    }
 ) {
   const textareaRef = useRef<HTMLTextAreaElement>(null)
 
@@ -47,23 +51,24 @@ export function MessageEditor(
       toast.error('Failed to send message')
       return
     }
-    if (onSuccessfulSend) {
-      onSuccessfulSend(message)
-    }
+    onSuccessfulSend(message)
     ele.value = ''
   }
 
   return (
     <form onSubmit={submitForm}
-      className="relative">
+      className="relative"
+    >
       <textarea name="message" onKeyDown={onKeyDown}
         required
-        placeholder='Ctrl+Enter or Meta+Enter to send message'
+        placeholder="Ctrl+Enter or Meta+Enter to send message"
         className="my-2 py-3 pl-4 pr-32 dark:bg-gray-900 focus:outline-none focus:border-blue-500 w-full h-24 border rounded-lg resize-none"
-        ref={textareaRef} />
+        ref={textareaRef}
+      />
       <button type="submit"
         className="absolute bg-blue-500 hover:bg-blue-600 text-white right-8 bottom-8 py-2 px-4 rounded rounded-lg"
-      >Send</button>
+      >Send
+      </button>
     </form>
   )
 }
