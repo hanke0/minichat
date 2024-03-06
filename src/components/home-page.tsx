@@ -5,7 +5,7 @@ import { useSearchParams } from 'next/navigation'
 import { TextMessage } from '@/lib/types'
 import { useEffect, useRef, useState } from 'react'
 import toast from 'react-hot-toast'
-import { Fresh } from '@/components/fresh'
+import { FreshSvg } from '@/components/fresh-svg'
 import { Main } from '@/components/main'
 import { LoginPage } from '@/components/login-page'
 import { MessageAction } from '@/components/message-action'
@@ -72,7 +72,7 @@ export function HomePage() {
           <h1 className="font-bold text-2xl">Channel {channel}</h1>
           <p>
             {numUsers} users in the channel
-            <Fresh height="0.75rem" width="0.75rem" className='inline mx-1' onClick={updateNumUsers} />
+            <FreshSvg height="0.75rem" width="0.75rem" className='inline mx-1' onClick={updateNumUsers} />
           </p>
         </header>
         <div className="flex-1 py-2 px-8 overflow-y-auto overflow-x-hidden"

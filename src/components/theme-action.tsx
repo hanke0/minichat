@@ -16,12 +16,11 @@ export function ThemeAction(
   }
   return (
     <select className='cursor-pointer block bg-transparent text-inherit outline-none'
-      onChange={changeTheme}>
+      onChange={changeTheme} value={theme}>
       {
         themes.map(
           (option) => {
-            return <option key={option.value} value={option.value}
-              selected={option.value === theme}>{option.label} Theme</option>
+            return <option key={option.value} value={option.value}>{option.label} Theme</option>
           }
         )
       }

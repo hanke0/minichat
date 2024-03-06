@@ -12,7 +12,7 @@ const wordSepRE = / \-_/
 
 export default function Message({ children, user, isMe }: MessageProps) {
   const order = isMe ? 'flex-row-reverse' : 'flex-row'
-  const bg = isMe ? 'bg-blue-100 dark:bg-slate-900' : 'bg-gray-100 dark:bg-gray-800'
+  const bg = isMe ? 'bg-[#8FCB9B]' : 'bg-[#EAE6E5] dark:bg-[#12130F]'
   const head = user.split(wordSepRE).map((w) => w ? w.charAt(0).toUpperCase() : '').join('').slice(0, 2)
   const textAlign = isMe ? 'text-right' : 'text-left'
 
