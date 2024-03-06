@@ -11,6 +11,7 @@ import { LoginPage } from '@/components/login-page'
 import { MessageAction } from '@/components/message-action'
 import { ThemeAction } from '@/components/theme-action'
 import { LoadingPage } from '@/components/loading-page'
+import { ErrorPage } from '@/components/error-page'
 
 export function HomePage() {
   const query = useSearchParams()
@@ -31,7 +32,10 @@ export function HomePage() {
   if (!user || !channel) {
     return <LoginPage />
   }
-  if (loading || error) {
+  if (error) {
+    return <ErrorPage error={error} />
+  }
+  if (loading) {
     return <LoadingPage />
   }
 

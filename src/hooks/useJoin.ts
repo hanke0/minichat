@@ -46,15 +46,6 @@ function makeEventSource(
 
   eventSource.addEventListener('error', (event) => {
     console.log('EventSource failed:', eventSource.readyState, event)
-    if (event.type === 'error') {
-      const e = event as ErrorEvent
-      if (e.message) {
-        setError(new Error(`Failed to connect to the server: ${e.message}`))
-        return
-      }
-    }
-    setError(new Error('Failed to connect to the server'))
-    eventSource.close()
   })
 
   eventSource.addEventListener('message', (event) => {
