@@ -10,7 +10,6 @@ export function MessageEditor(
     {
       secret: string,
       user: string,
-      /* eslint-disable-next-line no-unused-vars */
       onSuccessfulSend: (message: TextMessage) => void,
     }
 ) {

@@ -1,4 +1,4 @@
-import { channels, safeGetRequestUser } from "./_lib"
+import { channels, safeGetRequestUser } from "@/pages/api/_lib"
 import type { NextApiRequest, NextApiResponse } from "next"
 
 export default function handle(

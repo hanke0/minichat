@@ -1,6 +1,6 @@
 'use client'
-import { Status } from './status'
-import { useJoin } from '../hooks/useJoin'
+import { Status } from '@/components/status'
+import { useJoin } from '@/hooks/useJoin'
 import { TextMessage } from '@/lib/types'
 import { FreshSvg } from '@/components/fresh-svg'
 import { Main } from '@/components/main'

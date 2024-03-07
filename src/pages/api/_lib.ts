@@ -1,5 +1,6 @@
 import { Message, SecretUser } from "@/lib/types";
 import { defaultCrypto } from "@/lib/server/secure";
+import { getIP } from "@/lib/ip";
 import type { NextApiRequest, NextApiResponse } from "next";
 
 export const secret = process.env.SECRET || "secret";
@@ -117,51 +118,22 @@ class Controller {
   }
 }
 
-const ipRE = {
-  ipv4: /^(?:(?:\d|[1-9]\d|1\d{2}|2[0-4]\d|25[0-5])\.){3}(?:\d|[1-9]\d|1\d{2}|2[0-4]\d|25[0-5])$/,
-  ipv6: /^((?=.*::)(?!.*::.+::)(::)?([\dA-F]{1,4}:(:|\b)|){5}|([\dA-F]{1,4}:){6})((([\dA-F]{1,4}((?!\3)::|:\b|$))|(?!\2\3)){2}|(((2[0-4]|1\d|[1-9])?\d|25[0-5])\.?\b){4})$/i
-}
-
-export function isIP(ip: string) {
-  return ipRE.ipv4.test(ip) || ipRE.ipv6.test(ip)
-}
-
-function getClientIpFromXForwardedFor(value: string) {
-  if (!value) {
-    return null;
-  }
-  const forwardedIps = value.split(',').map(function (e) {
-    var ip = e.trim();
-    if (ip.includes(':')) {
-      var splitted = ip.split(':');
-
-      if (splitted.length === 2) {
-        return splitted[0];
-      }
-    }
-    return ip;
-  });
-
-  for (let ip of forwardedIps) {
-    if (isIP(ip)) {
-      return ip;
-    }
-  }
-  return null;
-}
-
 export function getClientIP(req: NextApiRequest) {
-  const real = req.headers['x-real-ip']
-  if (typeof real === 'string' && isIP(real)) {
-    return real
-  }
-
-  const forwarded = req.headers['x-forwarded-for']
-  if (typeof forwarded === 'string') {
-    const ip = getClientIpFromXForwardedFor(forwarded);
-    if (ip) {
-      return ip;
+  const ip = getIP((key) => {
+    const v = req.headers[key]
+    if (!v) {
+      return null
     }
+    if (typeof v === 'string') {
+      return v
+    }
+    if (v.length > 0) {
+      return v[0]
+    }
+    return null
+  })
+  if (ip) {
+    return ip
   }
   return req.socket.remoteAddress
 }
