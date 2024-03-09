@@ -11,7 +11,6 @@ import { LoadingPage } from '@/components/loading-page'
 import { ErrorPage } from '@/components/error-page'
 import { MessageEditor } from '@/components/message-editor'
 import { MessageBox } from '@/components/message-box'
-import { useScroll } from '@/hooks/useScroll'
 import { useSearchParams } from 'next/navigation'
 import React from 'react'
 
@@ -21,7 +20,6 @@ export function HomePage() {
   const user = query?.get("user") || undefined
   const { messages, error, loading, secret, numUsers,
     updateNumUsers, appendMessage, forceReconnect } = useJoin({ user, channel })
-  const { scrollBottom } = useScroll()
   if (!user || !channel) {
     return <LoginPage />
   }
@@ -34,7 +32,6 @@ export function HomePage() {
 
   const onSuccessfulSend = (message: TextMessage) => {
     appendMessage(message)
-    scrollBottom()
   }
 
   return (
@@ -50,9 +47,7 @@ export function HomePage() {
             <FreshSvg height="0.75rem" width="0.75rem" className="inline mx-1" onClick={updateNumUsers} />
           </p>
         </header>
-        <div className="flex-1 py-2 px-8 overflow-y-auto overflow-x-hidden">
-          <MessageBox messages={messages} user={user} />
-        </div>
+        <MessageBox className="flex-1 py-2 px-8" messages={messages} user={user} />
         <footer className="py-2 px-8">
           <div className="flex flex-row rounded-lg">
             <MessageAction>You are {user}</MessageAction>
